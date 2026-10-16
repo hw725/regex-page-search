@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>regex-page-search 시험 페이지</title>
+<style>
+  body { font: 18px/1.6 "Noto Serif KR", "Noto Serif CJK KR", serif; margin: 24px; }
+  pre { font-family: "Sarasa Fixed K", monospace; background: #f3f3f3; padding: 8px; }
+  .hidden { display: none; }
+  td { border: 1px solid #ccc; padding: 2px 8px; }
+</style>
+</head>
+<body>
+  <h1>시험 페이지</h1>
+  <p id="lines">第一章</p>
+  <div><p>第二章</p></div>
+  <p>序 第三章</p>
+
+  <p id="cross">子曰 <b>學而</b>時習之 不亦說乎</p>
+
+  <p id="ws">有朋
+        自遠方來</p>
+
+  <pre id="pre">  code line
+    indented</pre>
+
+  <p id="extb">𠀀𠀁𠀂</p>
+  <p id="compat">快&#xF914; 音&#x6A02;</p>
+
+  <p id="props">한글(漢字) 가나(かな)</p>
+
+  <table><tr><td>名</td><td>字</td></tr></table>
+
+  <p class="hidden">第隱章</p>
+  <script>var 第腳本 = 1;</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Regex Page Search</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <form id="f" autocomplete="off">
+    <div class="qrow">
+      <input id="q" type="text" spellcheck="false" placeholder="정규식 (Enter 다음 · Shift+Enter 이전)" aria-label="정규식">
+      <button type="button" id="fav" title="즐겨찾기에 저장/빼기" aria-pressed="false">☆</button>
+    </div>
+    <div class="row">
+      <label><input id="ci" type="checkbox"> 대소문자 무시</label>
+      <label><input id="dotall" type="checkbox"> . 이 줄바꿈 포함</label>
+    </div>
+    <div class="row">
+      <label title="이 탭에서 다른 페이지로 옮겨 가도 같은 검색어로 다시 검색합니다. 처음 켤 때 모든 사이트 접근 권한을 묻습니다. 「지우기」를 누르면 멈춥니다."><input id="follow" type="checkbox"> 이동해도 계속 검색 (이 탭)</label>
+    </div>
+    <div class="row">
+      <button type="button" id="prev" title="이전 (Shift+Enter)">▲</button>
+      <button type="button" id="next" title="다음 (Enter)">▼</button>
+      <button type="button" id="clear">지우기</button>
+      <output id="st" aria-live="polite"></output>
+    </div>
+    <div id="msg" role="status"></div>
+  </form>
+  <section class="lists">
+    <h2>즐겨찾기</h2>
+    <ul id="favs" class="plist" data-empty="☆ 버튼으로 지금 패턴을 저장합니다"></ul>
+    <h2>최근 사용</h2>
+    <ul id="recent" class="plist" data-empty="검색하면 여기에 쌓입니다"></ul>
+  </section>
+  <script src="src/history.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

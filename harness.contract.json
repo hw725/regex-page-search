@@ -1,0 +1,146 @@
+{
+  "v": 2,
+  "intake": "approved",
+  "intent": {
+    "purpose": {
+      "text": "웹페이지를 정규식으로 검색·강조하는 Chrome 확장(MV3). 1차 엔진은 JS RegExp(v 플래그 상시, ^$ 줄 단위), 불충분하면 Onigmo WASM(UTF16_LE)으로 교체한다",
+      "source": "user"
+    },
+    "scope": {
+      "text": "첫 버전: 팝업 입력창 + 강조(CSS Custom Highlight API) + 이전/다음 + 일치 개수. 블록 경계·<br>에 가상 줄바꿈, 일반 공백은 접기, pre 영역은 줄바꿈 보존. 페이지·검색어 모두 정규화하지 않음(호환 한자 보존). 0.2.0 추가: Onigmo 식 속성 이름 번역, 즐겨찾기(storage.sync)·최근 사용(storage.local), 내용 변화 시 자동 재검색, 선택 권한으로 「이동해도 계속 검색」(켠 탭만). 웹 스토어 배포·Onigmo 빌드는 범위 밖",
+      "source": "user"
+    },
+    "evidence": {
+      "text": "",
+      "source": "blank"
+    },
+    "screen": {
+      "text": "",
+      "source": "blank"
+    },
+    "data": {
+      "text": "",
+      "source": "blank"
+    },
+    "original": {
+      "text": "읽기 전용 폴더·원본 자료 없음",
+      "source": "user"
+    },
+    "verification": {
+      "text": "contract init 이 자동 검출한 테스트 조건 — 사람이 확인하고 보탠다",
+      "source": "assumed"
+    },
+    "publish": {
+      "text": "외부 산출물·외부 AI 호출 없음",
+      "source": "user"
+    },
+    "cost": {
+      "text": "외부 비용 없음(로컬 테스트·로컬 Chromium만)",
+      "source": "user"
+    }
+  },
+  "watch": [
+    "package.json",
+    "manifest.json",
+    "background.js",
+    "popup.html",
+    "popup.css",
+    "popup.js",
+    "src",
+    "test",
+    "scripts"
+  ],
+  "conditions": [
+    {
+      "id": "C-001",
+      "text": "npm test 가 전부 통과하고, 개수가 이전 통과보다 줄지 않는다(텍스트 잇기·오프셋 표·줄 단위 ^$·확장 B 이후 서로게이트 한자·호환 한자 비정규화 보존 시험 포함)",
+      "judge": "deterministic",
+      "check": {
+        "argv": [
+          "npm",
+          "test"
+        ],
+        "traceback_fatal": false,
+        "count_regex": "^(?:ℹ|#) pass (\\d+)$"
+      },
+      "guards": [],
+      "origin": {
+        "kind": "baseline",
+        "date": "2026-10-16",
+        "detected": true
+      },
+      "status": "active"
+    },
+    {
+      "id": "C-002",
+      "text": "실제 Chromium에 확장을 로드해 시험 페이지(블록 경계·pre·확장 B 한자·여러 노드에 걸친 일치)를 검색하면 강조·이전/다음·일치 개수가 기대값과 맞고, 즐겨찾기·최근 목록 저장·불러오기, 내용 변화 뒤 자동 재검색, 내용이 바뀐 페이지에서 팝업을 다시 열고 Enter 하면 새로 검색됨(사용자 지적: 옵션을 껐다 켜야 검색되던 버그), 다시 주입 뒤 정상 검색, 「이동해도 계속 검색」 켬·끔이 맞으며, 그 화면 캡처를 사람이 확인한다",
+      "judge": "visual",
+      "check": {
+        "argv": [
+          "node",
+          "scripts/e2e-capture.mjs"
+        ],
+        "timeout": 180
+      },
+      "guards": [],
+      "origin": {
+        "kind": "user-intent",
+        "date": "2026-10-16"
+      },
+      "status": "active"
+    },
+    {
+      "id": "C-003",
+      "text": "Onigmo/EmEditor 식 유니코드 속성 표기(\\p{hangul}·\\p{Han}·\\p{^Han}·\\p{lu} 등, 대소문자 무시)를 JS 식으로 바꿔 검색하고, 모르는 이름은 한국어로 알린다",
+      "judge": "deterministic",
+      "check": {
+        "argv": [
+          "node",
+          "--test",
+          "test/onigmo-compat.test.js"
+        ],
+        "fail_regex": "AssertionError|✖"
+      },
+      "guards": [
+        "test/onigmo-compat.test.js"
+      ],
+      "origin": {
+        "kind": "user-correction",
+        "date": "2026-10-16",
+        "quote": "\\p{hangul}+\\(\\p{han}+\\) 이걸로 검색해봤는데 전혀 안 돼"
+      },
+      "status": "active"
+    },
+    {
+      "id": "C-004",
+      "text": "자주 쓰는 정규식(즐겨찾기)과 최근에 쓴 정규식을 패턴·옵션째 저장하고 불러올 수 있다(최근 20개 최신순·중복 없음, 즐겨찾기 토글·상한, 깨진 저장값에도 견딤)",
+      "judge": "deterministic",
+      "check": {
+        "argv": [
+          "node",
+          "--test",
+          "test/history.test.js"
+        ],
+        "fail_regex": "AssertionError|✖"
+      },
+      "guards": [
+        "test/history.test.js"
+      ],
+      "origin": {
+        "kind": "user-intent",
+        "date": "2026-10-16",
+        "quote": "자주 쓰는 정규식이나 최근에 사용한 정규식 저장해서 불러올 수 있게 해줘"
+      },
+      "status": "active"
+    }
+  ],
+  "approved": {
+    "hash": "dc84974403afc92d3463e1f8301c87d1cb0c7afa91c9640281be692b130f6322",
+    "request": "A-8fdb2082",
+    "ts": "2026-10-16T15:07:01",
+    "guards": {
+      "test/history.test.js": "02d4c810d9ae2ccea62a6a19098afae43628ae7e74aed75a9ed20ed8f94469fc",
+      "test/onigmo-compat.test.js": "6c208a3783525bd5c1b6e36984ea05be58698ad5697e006c8cd876778f9683ee"
+    }
+  }
+}

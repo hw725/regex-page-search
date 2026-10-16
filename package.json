@@ -1,0 +1,13 @@
+{
+  "name": "regex-page-search",
+  "version": "0.1.0",
+  "private": true,
+  "description": "웹페이지를 정규식으로 검색하는 Chrome 확장 (JS RegExp 엔진, 추후 Onigmo WASM 교체 가능)",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1"
+  }
+}

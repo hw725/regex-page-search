@@ -1,0 +1,81 @@
+/* 글꼴은 설치된 로컬 글꼴 이름으로만 부른다(확장 안에 싣지 않음). 정규식 입력은 고정폭. */
+:root {
+  --bg: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #6b6b70;
+  --line: #d0d0d6;
+  --accent: #ff8c1a;
+  --err: #c62828;
+  --field: #f6f6f8;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e21;
+    --fg: #ececf0;
+    --muted: #a0a0a8;
+    --line: #3a3a40;
+    --err: #ff6b6b;
+    --field: #2a2a2e;
+  }
+}
+body {
+  margin: 0;
+  width: 360px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.4 "Pretendard GOV Variable", "Pretendard GOV", "Pretendard", system-ui, sans-serif;
+}
+form { padding: 10px; display: grid; gap: 8px; }
+#q {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--field);
+  color: var(--fg);
+  font: 14px/1.4 "Sarasa Fixed K", "Sarasa Mono K", ui-monospace, monospace;
+}
+#q:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+#q.bad { border-color: var(--err); }
+.row { display: flex; align-items: center; gap: 10px; }
+label { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); }
+button {
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--field);
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+#st { margin-left: auto; font-variant-numeric: tabular-nums; }
+#msg { color: var(--muted); min-height: 1em; white-space: pre-wrap; word-break: break-word; }
+#msg.err { color: var(--err); }
+.qrow { display: flex; gap: 6px; }
+.qrow #q { flex: 1; min-width: 0; }
+#fav { font-size: 16px; padding: 0 8px; }
+#fav[aria-pressed="true"] { color: var(--accent); }
+
+.lists { border-top: 1px solid var(--line); padding: 4px 10px 10px; }
+.lists h2 { margin: 8px 0 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.plist { list-style: none; margin: 0; padding: 0; max-height: 160px; overflow-y: auto; }
+.plist:empty::before { content: attr(data-empty); color: var(--muted); font-size: 12px; }
+.plist li { display: flex; align-items: center; gap: 4px; border-radius: 4px; }
+.plist li:hover { background: var(--field); }
+.plist .pick {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 3px 4px;
+  font: 13px/1.4 "Sarasa Fixed K", "Sarasa Mono K", ui-monospace, monospace;
+}
+.plist .badge { color: var(--muted); font-size: 11px; }
+.plist .act { border: 0; background: none; padding: 0 6px; color: var(--muted); }
+.plist .act:hover { color: var(--fg); }

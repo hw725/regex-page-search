@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Regex Page Search",
+  "version": "0.2.0",
+  "description": "웹페이지를 정규식으로 검색하고 강조합니다 (^ $ 줄 단위, 유니코드 모드 상시).",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "optional_host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_title": "정규식으로 페이지 검색",
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Alt+Shift+F" },
+      "description": "검색창 열기"
+    }
+  }
+}
