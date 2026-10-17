@@ -75,6 +75,25 @@ async function promo(ctx, lang) {
   await p.close();
 }
 
+// 마키 타일(1400×560, 알파 없는 PNG): 왼쪽에 이름, 오른쪽에 앞서 만든 실제 화면(screenshot-ko-1)의 페이지 쪽만(팝업이 반쯤 잘려 보이지 않게)
+async function marquee(ctx) {
+  const p = await ctx.newPage();
+  await p.setViewportSize({ width: 1400, height: 560 });
+  const shot = png(fs.readFileSync(path.join(OUT, "screenshot-ko-1.png")));
+  await p.setContent(`<body style="margin:0;width:1400px;height:560px;overflow:hidden;background:#1f2a44;color:#fff;position:relative;font-family:'Pretendard GOV Variable',Pretendard,system-ui,sans-serif">
+    <div style="position:absolute;left:80px;top:150px;display:flex;align-items:center;gap:28px">
+      <img src="${icon}" width="128" height="128">
+      <div><div style="font-size:52px;font-weight:700;line-height:1.15">Regex Page Search</div>
+      <div style="margin-top:14px;font-size:24px;color:#ffb366">Line-based ^ $ · Unicode always on</div>
+      <div style="margin-top:8px;font:22px 'Sarasa Fixed K',Consolas,monospace;color:#d6dbe6">\\p{hangul}+\\(\\p{han}+\\)</div></div>
+    </div>
+    <div style="position:absolute;left:800px;top:70px;width:560px;height:560px;border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.45)">
+      <img src="${shot}" style="width:900px;display:block">
+    </div></body>`);
+  fs.writeFileSync(path.join(OUT, "marquee-1400x560.png"), await p.screenshot());
+  await p.close();
+}
+
 const srv = await serve();
 const base = `http://127.0.0.1:${srv.address().port}/`;
 for (const lang of ["ko", "en"]) {
@@ -122,7 +141,7 @@ for (const lang of ["ko", "en"]) {
       await page.close();
     }
     // 홍보 타일은 언어별로 올릴 수 없다(스토어 문서 「Supplying Images」) — 영어 하나만
-    if (lang === "en") await promo(ctx, lang);
+    if (lang === "en") { await promo(ctx, lang); await marquee(ctx); }
   } finally {
     await ctx.close();
   }

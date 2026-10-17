@@ -11,6 +11,8 @@
   - 아이콘: zip 안 `icons/icon128.png` (스토어가 자동으로 쓴다)
   - 스크린숏(언어별): ko → `screenshot-ko-1.png`, `screenshot-ko-2.png` · en → `screenshot-en-1.png`, `screenshot-en-2.png` (1280×800)
   - 작은 홍보 타일(필수, 언어 구분 없음): `promo-440x280.png`
+  - 마키 홍보 타일(선택, 1400×560, 알파 없는 PNG): `marquee-1400x560.png`
+  - 스토어 아이콘(128×128): `icons/icon128.png`. zip 안에도 있지만 등록정보 탭에 따로 올린다
 - **홈페이지 URL**: https://github.com/hw725/regex-page-search
 - **지원 URL**: https://github.com/hw725/regex-page-search/issues
 
