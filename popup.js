@@ -4,7 +4,20 @@
 "use strict";
 
 const H = globalThis.RPSHistory;
+const t = globalThis.RPSt;
 const $ = (id) => document.getElementById(id);
+
+// popup.html 의 data-i18n(글자)·data-i18n-<속성>(그 속성)을 번역문으로 바꾼다. 번역이 없으면 적힌 한국어가 남는다
+for (const el of document.querySelectorAll("*")) {
+  for (const a of [...el.attributes]) {
+    if (!a.name.startsWith("data-i18n")) continue;
+    const target = a.name === "data-i18n" ? null : a.name.slice("data-i18n-".length);
+    const ko = target ? el.getAttribute(target) : el.textContent;
+    const s = t(a.value, ko);
+    if (target) el.setAttribute(target, s); else el.textContent = s;
+  }
+}
+document.documentElement.lang = t("htmlLang", "ko");
 const q = $("q"), ci = $("ci"), dotall = $("dotall"), st = $("st"), msg = $("msg"), favBtn = $("fav"), follow = $("follow");
 const ALL_SITES = { origins: ["<all_urls>"] };
 let tabId = null;
@@ -35,10 +48,10 @@ function show(r) {
     q.classList.add("bad");
     return;
   }
-  st.textContent = r.count ? `${r.index + 1} / ${r.count}` : (r.pattern ? "0건" : "");
+  st.textContent = r.count ? `${r.index + 1} / ${r.count}` : (r.pattern ? t("zeroCount", "0건") : "");
   const notes = [];
-  if (r.truncated) notes.push(`일치가 너무 많아 처음 ${r.count}건만 표시합니다`);
-  if (r.empty) notes.push(`길이 0 일치 ${r.empty}건은 칠할 수 없어 뺐습니다`);
+  if (r.truncated) notes.push(t("truncated", "일치가 너무 많아 처음 $1건만 표시합니다", r.count));
+  if (r.empty) notes.push(t("emptyMatches", "길이 0 일치 $1건은 칠할 수 없어 뺐습니다", r.empty));
   if (r.note) notes.push(r.note);
   msg.textContent = notes.join("\n");
 }
@@ -49,11 +62,13 @@ async function loadLists() {
   try { recent = (await chrome.storage.local.get("recent")).recent || []; } catch (_) { recent = []; }
 }
 
-async function saveFavorites() {
+// 저장에 성공한 뒤에만 화면 목록을 바꾼다 — 실패했는데 더해진 것처럼 보이면 팝업을 다시 열 때 사라진다
+async function saveFavorites(next) {
   try {
-    await chrome.storage.sync.set({ favorites });
+    await chrome.storage.sync.set({ favorites: next });
+    favorites = next;
   } catch (e) {
-    show({ error: "즐겨찾기를 저장하지 못했습니다: " + (e.message || e) });
+    show({ error: t("favSaveFailed", "즐겨찾기를 저장하지 못했습니다: $1", e.message || e) });
   }
 }
 
@@ -73,7 +88,7 @@ function renderList(ul, list, actions) {
       const s = document.createElement("span");
       s.className = "badge";
       s.textContent = b;
-      s.title = (e.ignoreCase ? "대소문자 무시 " : "") + (e.dotAll ? ". 이 줄바꿈 포함" : "");
+      s.title = [e.ignoreCase && t("ignoreCase", "대소문자 무시"), e.dotAll && t("dotAll", ". 이 줄바꿈 포함")].filter(Boolean).join(" ");
       li.append(s);
     }
     for (const [label, title, fn] of actions(e)) {
@@ -90,16 +105,14 @@ function renderList(ul, list, actions) {
 }
 
 function render() {
-  renderList($("favs"), favorites, (e) => [["✕", "즐겨찾기에서 빼기", async () => {
-    favorites = H.remove(favorites, e);
-    await saveFavorites();
+  renderList($("favs"), favorites, (e) => [["✕", t("favRemove", "즐겨찾기에서 빼기"), async () => {
+    await saveFavorites(H.remove(favorites, e));
     render();
   }]]);
-  renderList($("recent"), recent, (e) => H.isFavorite(favorites, e) ? [] : [["☆", "즐겨찾기에 저장", async () => {
+  renderList($("recent"), recent, (e) => H.isFavorite(favorites, e) ? [] : [["☆", t("favAdd", "즐겨찾기에 저장"), async () => {
     const r = H.toggleFavorite(favorites, e);
-    if (r.full) { show({ error: `즐겨찾기는 ${H.FAVORITE_MAX}개까지입니다` }); return; }
-    favorites = r.list;
-    await saveFavorites();
+    if (r.full) { show({ error: t("favFull", "즐겨찾기가 가득 찼습니다(최대 $1개, Chrome 동기화 저장 한도 8KB 안에서). 안 쓰는 것을 빼 주세요", H.FAVORITE_MAX) }); return; }
+    await saveFavorites(r.list);
     render();
   }]]);
   const on = !!q.value && H.isFavorite(favorites, current());
@@ -126,7 +139,7 @@ async function targetTab() {
 }
 
 async function inject() {
-  await chrome.scripting.executeScript({ target: { tabId }, files: ["src/core.js", "src/content.js"] });
+  await chrome.scripting.executeScript({ target: { tabId }, files: ["src/i18n.js", "src/core.js", "src/content.js"] });
 }
 
 async function send(m) {
@@ -157,7 +170,7 @@ async function run(delta) {
     show(r);
     chrome.storage.local.set({ pattern: q.value, opts: opts() });
   } catch (e) {
-    show({ error: "이 페이지에서는 검색할 수 없습니다 (" + (e.message || e) + ")" });
+    show({ error: t("cannotSearch", "이 페이지에서는 검색할 수 없습니다 ($1)", e.message || e) });
   }
 }
 
@@ -186,8 +199,8 @@ follow.addEventListener("change", async () => {
       follow.checked = false;
       show({
         error: why
-          ? `권한 요청이 실패했습니다: ${why}\nchrome://extensions 에서 이 확장을 새로고침(↻)한 뒤 다시 해 보세요.`
-          : "권한을 허용하지 않아 「이동해도 계속 검색」을 켜지 못했습니다",
+          ? t("permFailed", "권한 요청이 실패했습니다: $1\nchrome://extensions 에서 이 확장을 새로고침(↻)한 뒤 다시 해 보세요.", why)
+          : t("permDenied", "권한을 허용하지 않아 「이동해도 계속 검색」을 켜지 못했습니다"),
       });
       return;
     }
@@ -198,9 +211,8 @@ follow.addEventListener("change", async () => {
 favBtn.addEventListener("click", async () => {
   if (!q.value) return;
   const r = H.toggleFavorite(favorites, current());
-  if (r.full) { show({ error: `즐겨찾기는 ${H.FAVORITE_MAX}개까지입니다` }); return; }
-  favorites = r.list;
-  await saveFavorites();
+  if (r.full) { show({ error: t("favFull", "즐겨찾기가 가득 찼습니다(최대 $1개, Chrome 동기화 저장 한도 8KB 안에서). 안 쓰는 것을 빼 주세요", H.FAVORITE_MAX) }); return; }
+  await saveFavorites(r.list);
   render();
   q.focus();
 });

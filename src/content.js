@@ -111,7 +111,7 @@
     lastRun = Date.now();
     const c = compile(pattern, opts);
     if (c.error) return { error: c.error };
-    if (!(globalThis.CSS && CSS.highlights)) return { error: "이 브라우저는 CSS Custom Highlight API를 지원하지 않습니다" };
+    if (!(globalThis.CSS && CSS.highlights)) return { error: globalThis.RPSt("errNoHighlight", "이 브라우저는 CSS Custom Highlight API를 지원하지 않습니다") };
     const t0 = performance.now();
     const { text, segs } = linearize(document.body || document.documentElement, env);
     const { matches, empty, truncated } = findAll(text, c.re, opts && opts.limit);

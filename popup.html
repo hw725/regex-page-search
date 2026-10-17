@@ -6,32 +6,34 @@
 <link rel="stylesheet" href="popup.css">
 </head>
 <body>
+  <!-- data-i18n*: 문구 열쇠(_locales). 여기 적힌 한국어는 번역이 없을 때 그대로 보인다 -->
   <form id="f" autocomplete="off">
     <div class="qrow">
-      <input id="q" type="text" spellcheck="false" placeholder="정규식 (Enter 다음 · Shift+Enter 이전)" aria-label="정규식">
-      <button type="button" id="fav" title="즐겨찾기에 저장/빼기" aria-pressed="false">☆</button>
+      <input id="q" type="text" spellcheck="false" placeholder="정규식 (Enter 다음 · Shift+Enter 이전)" aria-label="정규식" data-i18n-placeholder="qPlaceholder" data-i18n-aria-label="qLabel">
+      <button type="button" id="fav" title="즐겨찾기에 저장/빼기" aria-pressed="false" data-i18n-title="favTitle">☆</button>
     </div>
     <div class="row">
-      <label><input id="ci" type="checkbox"> 대소문자 무시</label>
-      <label><input id="dotall" type="checkbox"> . 이 줄바꿈 포함</label>
+      <label><input id="ci" type="checkbox"> <span data-i18n="ignoreCase">대소문자 무시</span></label>
+      <label><input id="dotall" type="checkbox"> <span data-i18n="dotAll">. 이 줄바꿈 포함</span></label>
     </div>
     <div class="row">
-      <label title="이 탭에서 다른 페이지로 옮겨 가도 같은 검색어로 다시 검색합니다. 처음 켤 때 모든 사이트 접근 권한을 묻습니다. 「지우기」를 누르면 멈춥니다."><input id="follow" type="checkbox"> 이동해도 계속 검색 (이 탭)</label>
+      <label title="이 탭에서 다른 페이지로 옮겨 가도 같은 검색어로 다시 검색합니다. 처음 켤 때 모든 사이트 접근 권한을 묻습니다. 「지우기」를 누르면 멈춥니다." data-i18n-title="followTitle"><input id="follow" type="checkbox"> <span data-i18n="follow">이동해도 계속 검색 (이 탭)</span></label>
     </div>
     <div class="row">
-      <button type="button" id="prev" title="이전 (Shift+Enter)">▲</button>
-      <button type="button" id="next" title="다음 (Enter)">▼</button>
-      <button type="button" id="clear">지우기</button>
+      <button type="button" id="prev" title="이전 (Shift+Enter)" data-i18n-title="prevTitle">▲</button>
+      <button type="button" id="next" title="다음 (Enter)" data-i18n-title="nextTitle">▼</button>
+      <button type="button" id="clear" data-i18n="clear">지우기</button>
       <output id="st" aria-live="polite"></output>
     </div>
     <div id="msg" role="status"></div>
   </form>
   <section class="lists">
-    <h2>즐겨찾기</h2>
-    <ul id="favs" class="plist" data-empty="☆ 버튼으로 지금 패턴을 저장합니다"></ul>
-    <h2>최근 사용</h2>
-    <ul id="recent" class="plist" data-empty="검색하면 여기에 쌓입니다"></ul>
+    <h2 data-i18n="favorites">즐겨찾기</h2>
+    <ul id="favs" class="plist" data-empty="☆ 버튼으로 지금 패턴을 저장합니다" data-i18n-data-empty="favEmpty"></ul>
+    <h2 data-i18n="recent">최근 사용</h2>
+    <ul id="recent" class="plist" data-empty="검색하면 여기에 쌓입니다" data-i18n-data-empty="recentEmpty"></ul>
   </section>
+  <script src="src/i18n.js"></script>
   <script src="src/history.js"></script>
   <script src="popup.js"></script>
 </body>

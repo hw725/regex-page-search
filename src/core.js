@@ -7,6 +7,8 @@
 (function (root) {
   "use strict";
 
+  // 문구 번역(src/i18n.js). Node 시험에는 i18n.js 가 없으므로 한국어에 $1… 만 채운다
+  const t = root.RPSt || ((key, ko, ...subs) => subs.reduce((s, v, i) => s.replaceAll("$" + (i + 1), String(v)), ko));
   const TEXT_NODE = 3;
   const ELEMENT_NODE = 1;
   const WS = /[ \t\n\r\f]/; // HTML 공백 정의(문서 공백 접기 대상). NBSP(U+00A0)·전각 공백(U+3000)은 접지 않는다
@@ -213,17 +215,16 @@
    */
   function compile(pattern, opts) {
     opts = opts || {};
-    if (!pattern) return { error: "검색어가 비어 있습니다" };
+    if (!pattern) return { error: t("errEmpty", "검색어가 비어 있습니다") };
     const tr = translateProps(pattern);
     const r = compileJs(tr.pattern, "gm" + (opts.ignoreCase ? "i" : "") + (opts.dotAll ? "s" : ""));
     if (r.error && tr.unknown.length) {
       return {
-        error: `알 수 없는 유니코드 속성: ${tr.unknown.join(" ")}\n` +
-          "문자 체계는 \\p{Han}·\\p{Hangul}, 일반 범주는 \\p{L}·\\p{Lu}처럼 씁니다(대소문자 무관).",
+        error: t("errUnknownProp", "알 수 없는 유니코드 속성: $1\n문자 체계는 \\p{Han}·\\p{Hangul}, 일반 범주는 \\p{L}·\\p{Lu}처럼 씁니다(대소문자 무관).", tr.unknown.join(" ")),
       };
     }
     const notes = [];
-    if (tr.changes.length) notes.push("속성 이름을 JS 식으로 바꿔 검색했습니다: " + tr.changes.map(([a, b]) => `${a} → ${b}`).join(", "));
+    if (tr.changes.length) notes.push(t("noteProps", "속성 이름을 JS 식으로 바꿔 검색했습니다: $1", tr.changes.map(([a, b]) => `${a} → ${b}`).join(", ")));
     if (r.note) notes.push(r.note);
     if (notes.length) r.note = notes.join("\n");
     return r;
@@ -239,13 +240,13 @@
         // v 자체를 지원하지 않는 엔진도 여기서 u 로 내려간다.
         try { new RegExp("", "v"); } catch (_) { continue; }
         try {
-          return { re: new RegExp(pattern, base + "u"), flags: base + "u", note: "v 플래그로는 오류라서 u 플래그로 검색했습니다: " + e.message };
+          return { re: new RegExp(pattern, base + "u"), flags: base + "u", note: t("noteUFallback", "v 플래그로는 오류라서 u 플래그로 검색했습니다: $1", e.message) };
         } catch (_) {
           return { error: String(e.message || e) };
         }
       }
     }
-    return { error: "정규식을 컴파일하지 못했습니다" };
+    return { error: t("errCompile", "정규식을 컴파일하지 못했습니다") };
   }
 
   /**

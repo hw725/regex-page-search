@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CI build #4182 — log</title>
+<style>
+  body { margin: 0; background: #0f1115; color: #c9d1d9; font: 15px/1.6 "Sarasa Fixed K", "Cascadia Mono", Consolas, monospace; }
+  header { padding: 18px 64px; background: #161b22; border-bottom: 1px solid #30363d; font-family: system-ui, sans-serif; }
+  header b { color: #fff; font-size: 18px; }
+  pre { margin: 0; padding: 24px 64px; white-space: pre; }
+</style>
+</head>
+<body>
+<header><b>CI build #4182</b> · example log</header>
+<pre>09:41:02 INFO  checkout main @ 7c1e9a2
+09:41:05 INFO  restoring cache (node_modules, 412 MB)
+09:41:19 INFO  npm ci finished in 14.2s
+09:41:20 INFO  running unit tests (3 workers)
+09:41:31 WARN  test/parser.test.js: slow test 2.4s
+09:41:33 ERROR test/render.test.js: expected 12 rows, got 11
+09:41:33 INFO  retrying flaky suite render (1/2)
+09:41:40 ERROR test/render.test.js: expected 12 rows, got 11
+09:41:41 INFO  collecting coverage
+09:41:44 WARN  coverage below threshold: 78.2% &lt; 80%
+09:41:45 ERROR job failed: 2 failing tests
+09:41:45 INFO  uploading artifacts (logs, screenshots)
+09:41:52 INFO  done in 50.1s
+</pre>
+</body>
+</html>

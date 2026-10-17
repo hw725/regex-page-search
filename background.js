@@ -11,7 +11,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, info) => {
   const f = (await chrome.storage.session.get(k))[k];
   if (!f || !f.pattern) return;
   try {
-    await chrome.scripting.executeScript({ target: { tabId }, files: ["src/core.js", "src/content.js"] });
+    await chrome.scripting.executeScript({ target: { tabId }, files: ["src/i18n.js", "src/core.js", "src/content.js"] });
     // 자동 재검색은 스크롤하지 않는다 — 새 페이지를 읽기 시작한 위치가 튀지 않게
     await chrome.tabs.sendMessage(tabId, { type: "search", pattern: f.pattern, opts: f.opts, scroll: false });
   } catch (_) {

@@ -14,7 +14,10 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { runtimeFiles } from "./build-zip.mjs";
 
+// 화면 언어(기본 ko). RPS_LANG=en 이면 영어 화면으로 같은 시험을 돌린다 — 기대값은 개수·「1 / 2」 같은 숫자뿐이다
+const LANG = process.env.RPS_LANG || "ko";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = process.env.HARNESS_SCRATCH || path.join(ROOT, ".harness", "e2e-manual");
 fs.mkdirSync(OUT, { recursive: true });
@@ -35,8 +38,11 @@ function findChromium() {
 }
 
 function copyExtension(dst) {
-  for (const f of ["manifest.json", "popup.html", "popup.css", "popup.js", "background.js"]) fs.copyFileSync(path.join(ROOT, f), path.join(dst, f));
-  fs.cpSync(path.join(ROOT, "src"), path.join(dst, "src"), { recursive: true });
+  // 배포 zip 과 같은 목록으로 — 시험 사본에만 있는 파일이 있으면 「시험은 통과, 스토어 판은 깨짐」이 된다
+  for (const f of runtimeFiles()) {
+    fs.mkdirSync(path.dirname(path.join(dst, f)), { recursive: true });
+    fs.copyFileSync(path.join(ROOT, f), path.join(dst, f));
+  }
   const m = JSON.parse(fs.readFileSync(path.join(dst, "manifest.json"), "utf8"));
   m.host_permissions = ["http://127.0.0.1/*"];
   fs.writeFileSync(path.join(dst, "manifest.json"), JSON.stringify(m, null, 2));
@@ -77,7 +83,8 @@ const ctx = await chromium.launchPersistentContext(path.join(tmp, "profile"), {
   executablePath: exe,
   headless: true,
   viewport: { width: 900, height: 1000 },
-  args: [`--disable-extensions-except=${extDir}`, `--load-extension=${extDir}`],
+  locale: LANG,
+  args: [`--disable-extensions-except=${extDir}`, `--load-extension=${extDir}`, `--lang=${LANG}`],
 });
 try {
   let [sw] = ctx.serviceWorkers();
@@ -113,7 +120,7 @@ try {
     return waitStatus("");
   }
   function countOf(s) {
-    if (s === "0건") return 0;
+    if (s === "0건" || s === "0 matches") return 0;
     const m = /^(\d+) \/ (\d+)$/.exec(s);
     return m ? Number(m[2]) : NaN;
   }

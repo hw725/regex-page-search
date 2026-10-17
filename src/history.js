@@ -4,7 +4,13 @@
   "use strict";
 
   const RECENT_MAX = 20;
-  const FAVORITE_MAX = 200; // storage.sync 한도(항목당 8KB·전체 100KB) 안쪽으로
+  const FAVORITE_MAX = 200;
+  // 즐겨찾기는 storage.sync 의 「favorites」 키 하나에 통째로 둔다. 키 하나의 한도(QUOTA_BYTES_PER_ITEM)는 키 이름 + 값 JSON 이
+  // 8,192바이트라, 개수만 세면 짧은 패턴 200개로도 넘는다(2026-10-17 발행 전 리뷰). 한자가 많으면 더 빨리 차므로 UTF-8 바이트로
+  // 넉넉히 센다(Chrome 이 문자 수로 세더라도 이 값이 더 크거나 같다)
+  const SYNC_ITEM_BYTES = 8192;
+  const utf8Bytes = (s) => (typeof TextEncoder !== "undefined" ? new TextEncoder().encode(s).length : unescape(encodeURIComponent(s)).length);
+  const fitsSync = (list) => utf8Bytes("favorites" + JSON.stringify(list)) <= SYNC_ITEM_BYTES;
 
   function entry(pattern, opts) {
     opts = opts || {};
@@ -30,13 +36,14 @@
     return clean(list).some((x) => same(x, e));
   }
 
-  /** 즐겨찾기에 있으면 빼고, 없으면 맨 뒤에 더한다. 한도를 넘으면 더하지 않고 그대로 돌려준다. */
+  /** 즐겨찾기에 있으면 빼고, 없으면 맨 뒤에 더한다. 개수 한도나 동기화 저장 한도를 넘으면 더하지 않고 그대로 돌려준다. */
   function toggleFavorite(list, e, max) {
     const cur = clean(list);
     if (!e || !e.pattern) return { list: cur, added: false, full: false };
     if (cur.some((x) => same(x, e))) return { list: cur.filter((x) => !same(x, e)), added: false, full: false };
-    if (cur.length >= (max || FAVORITE_MAX)) return { list: cur, added: false, full: true };
-    return { list: [...cur, e], added: true, full: false };
+    const next = [...cur, e];
+    if (cur.length >= (max || FAVORITE_MAX) || !fitsSync(next)) return { list: cur, added: false, full: true };
+    return { list: next, added: true, full: false };
   }
 
   function remove(list, e) {
@@ -48,5 +55,5 @@
     return (e.ignoreCase ? "i" : "") + (e.dotAll ? "s" : "");
   }
 
-  root.RPSHistory = { RECENT_MAX, FAVORITE_MAX, entry, same, addRecent, isFavorite, toggleFavorite, remove, badge };
+  root.RPSHistory = { RECENT_MAX, FAVORITE_MAX, SYNC_ITEM_BYTES, fitsSync, entry, same, addRecent, isFavorite, toggleFavorite, remove, badge };
 })(typeof globalThis !== "undefined" ? globalThis : this);
